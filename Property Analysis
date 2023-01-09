@@ -1,0 +1,79 @@
+--Use Keys Database 
+
+--Question 1: Display a list of all property names and their property id’s for Owner Id: 1426. 
+Select 
+	OwnerID, 
+	PropertyID,
+	Name
+FROM OwnerProperty 
+	INNER JOIN Property
+		ON OwnerProperty.PropertyID = Property.ID
+Where 
+	OwnerID = '1426'
+
+--Question 2: Display the current home value for each property in question a). 
+Select 
+    OwnerProperty.OwnerId,
+    OwnerProperty.PropertyId,
+    Property.Name,
+    PropertyHomeValue.Value
+FROM OwnerProperty
+    INNER JOIN Property
+        ON OwnerProperty.PropertyId = Property.Id
+    INNER JOIN PropertyHomeValue
+        ON OwnerProperty.PropertyId = PropertyHomeValue.PropertyId
+WHERE
+    OwnerId = 1426
+
+--Question 3: For each property in question a), return the following:                                                                      
+-- i) Using rental payment amount, rental payment frequency, tenant start date and tenant end date to write a query that returns the sum of all payments from start date to end date. 
+-- Display the yield. 
+Select 
+    OwnerProperty.PropertyId,
+    SUM(PropertyRentalPayment.Amount) AS "Rental Payment Amount",
+    SUM(PropertyRentalPayment.FrequencyType) AS "Rental Payment Frequency",
+    Min(TenantProperty.StartDate) AS "Tenant Start Date",
+    MAX(TenantProperty.EndDate) AS "Tenant End Date",
+	SUM(PropertyRentalPayment.Amount * PropertyRentalPayment.FrequencyType) AS "Yield"
+FROM OwnerProperty
+    INNER JOIN PropertyRentalPayment
+        ON OwnerProperty.PropertyId = PropertyRentalPayment.PropertyId
+    INNER JOIN TenantProperty
+        ON OwnerProperty.PropertyId = TenantProperty.PropertyId
+WHERE
+    OwnerId = 1426
+GROUP BY
+    OwnerProperty.PropertyId 
+
+
+-- Question 4: Display all the jobs available
+
+SELECT *
+FROM Job
+    INNER JOIN JobStatus
+        ON JobStatus.Id = Job.JobStatusId
+WHERE JobStatus.Id = 1
+
+--Question 5: Display all property names, current tenants first and last names and rental payments per week/ fortnight/month for the properties in question a).
+SELECT
+   Property.Name,
+    Person.FirstName,
+    Person.LastName,
+    SUM(PropertyRentalPayment.Amount) AS "Rental Payments"
+FROM OwnerProperty
+    INNER JOIN Property
+        ON OwnerProperty.PropertyId = Property.Id
+    INNER JOIN TenantProperty
+        ON OwnerProperty.PropertyId =  TenantProperty.PropertyId
+    INNER JOIN Person
+        ON TenantProperty.Id = Person.Id
+    INNER JOIN PropertyRentalPayment
+        ON OwnerProperty.PropertyId = PropertyRentalPayment.PropertyId
+WHERE
+    OwnerId = 1426
+GROUP BY
+    Property.Name,
+    Person.FirstName,
+    Person.LastName
+
+--End--

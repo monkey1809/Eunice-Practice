@@ -29,21 +29,14 @@ WHERE
 -- i) Using rental payment amount, rental payment frequency, tenant start date and tenant end date to write a query that returns the sum of all payments from start date to end date. 
 -- Display the yield. 
 Select 
-    OwnerProperty.PropertyId,
-    SUM(PropertyRentalPayment.Amount) AS "Rental Payment Amount",
-    SUM(PropertyRentalPayment.FrequencyType) AS "Rental Payment Frequency",
-    Min(TenantProperty.StartDate) AS "Tenant Start Date",
-    MAX(TenantProperty.EndDate) AS "Tenant End Date",
-	SUM(PropertyRentalPayment.Amount * PropertyRentalPayment.FrequencyType) AS "Yield"
-FROM OwnerProperty
-    INNER JOIN PropertyRentalPayment
-        ON OwnerProperty.PropertyId = PropertyRentalPayment.PropertyId
-    INNER JOIN TenantProperty
-        ON OwnerProperty.PropertyId = TenantProperty.PropertyId
+TenantProperty.PropertyID, TenantProperty.TenantID, TenantProperty.PaymentAmount AS Rent, TenantProperty.StartDate, TenantProperty.EndDate, (CASE
+	WHEN TenantProperty.PaymentFrequencyId='1' THEN (DATEDIFF (WEEK,  TenantProperty.StartDate, TenantProperty.EndDate) * TenantProperty.PaymentAmount)
+	WHEN TenantProperty.PaymentFrequencyId='2' THEN (DATEDIFF (WEEK,  TenantProperty.StartDate, TenantProperty.EndDate)/2 * TenantProperty.PaymentAmount)
+	WHEN TenantProperty.PaymentFrequencyId='3' THEN (DATEDIFF (MONTH,  TenantProperty.StartDate, TenantProperty.EndDate)+1 * TenantProperty.PaymentAmount)
+	END) AS 'Rent Total'
+FROM TenantProperty
 WHERE
-    OwnerId = 1426
-GROUP BY
-    OwnerProperty.PropertyId 
+	TenantProperty.PropertyID IN(5597,5637,5638)
 
 
 -- Question 4: Display all the jobs available
